@@ -102,12 +102,7 @@ const LogExpense = () => {
             >
               Delete
             </button>
-            <button
-              onClick={() => handleUpdate(expense.id, { ...expense, amount: (parseFloat(expense.amount) + 10).toString() })}
-              className="bg-green-500 text-white px-2 py-1 rounded"
-            >
-              Update (+$10)
-            </button>
+        
           </div>
         ))}
       </div>
