@@ -16,7 +16,7 @@ const Sidebar = () => {
           <li>
             <Link to="/set-limit" className="flex items-center space-x-2 text-gray-700 hover:bg-gray-100 rounded-md p-2">
               <Settings className="w-5 h-5" />
-              <span>Target Pengeluaran</span>
+              <span>Set Limit</span>
             </Link>
           </li>
           <li>

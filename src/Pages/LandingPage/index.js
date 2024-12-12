@@ -57,7 +57,7 @@ const LandingPage = () => {
           Revolutionize Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">Financial Future</span>
         </h1>
         <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-          WiseSpend harnesses the power of AI to provide unparalleled insights and security for your financial journey.
+          WiseSpend harnesses the power of AI to provide unparalleled insights for your financial journey.
         </p>
         <Link to="/register" className="inline-flex items-center bg-white text-black px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-200 transition duration-300 transform hover:scale-105">
           Start Your Financial Revolution
