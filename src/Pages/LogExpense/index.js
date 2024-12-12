@@ -63,7 +63,7 @@ const LogExpense = () => {
             name="amount"
             value={newExpense.amount}
             onChange={handleInputChange}
-            placeholder="Amount"
+            placeholder="Jumlah Pengeluaran"
             className="border p-2 rounded"
             required
           />
@@ -72,7 +72,7 @@ const LogExpense = () => {
             name="category"
             value={newExpense.category}
             onChange={handleInputChange}
-            placeholder="Category"
+            placeholder="Kategori"
             className="border p-2 rounded"
             required
           />
@@ -86,24 +86,24 @@ const LogExpense = () => {
           />
         </div>
         <button type="submit" className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-          Add Expense
+          Tambah Pengeluaran
         </button>
       </form>
       <div>
         <h2 className="text-2xl font-bold mb-4">Expense List</h2>
         {expenses.map((expense) => (
-          <div key={expense.id} className="border p-4 mb-4 rounded">
-            <p>Amount: ${expense.amount}</p>
-            <p>Category: {expense.category}</p>
-            <p>Date: {expense.date}</p>
-            <button
-              onClick={() => handleDelete(expense.id)}
-              className="bg-red-500 text-white px-2 py-1 rounded mr-2"
-            >
-              Delete
-            </button>
-        
-          </div>
+         <div key={expense.id} className="border p-4 mb-4 rounded">
+         <p>Jumlah: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(parseFloat(expense.amount))}</p>
+         <p>Kategori: {expense.category}</p>
+         <p>Tanggal: {expense.date}</p>
+         <button
+           onClick={() => handleDelete(expense.id)}
+           className="bg-red-500 text-white px-2 py-1 rounded mr-2"
+         >
+           Delete
+         </button>
+       </div>
+       
         ))}
       </div>
     </div>

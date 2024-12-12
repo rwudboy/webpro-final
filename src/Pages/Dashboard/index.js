@@ -17,7 +17,7 @@ const Dashboard = () => {
     const user = auth.currentUser;
     if (user) {
       const userEmail = user.email;
-      setUserName(userEmail.split('@')[0]); // Set user name without @
+      setUserName(userEmail.split('@')[0]); 
 
       const expensesRef = ref(database, `users/${user.uid}/expenses`);
       onValue(expensesRef, (snapshot) => {
@@ -83,25 +83,36 @@ const Dashboard = () => {
       </div>
       
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Monthly Expenses</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={monthlyData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="total" fill="#8884d8" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+  <h2 className="text-2xl font-bold mb-4">Monthly Expenses</h2>
+  <ResponsiveContainer width="100%" height={300}>
+    <BarChart data={monthlyData}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="date" />
+      <YAxis />
+      <Legend />
+      
+      {/* Tooltip yang telah dimodifikasi */}
+      <Tooltip 
+        formatter={(value) => 
+          new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value)
+        }
+      />
+      
+      <Bar dataKey="total" fill="#8884d8" />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
           <h2 className="text-2xl font-bold mb-4">Expense Summary</h2>
           <div className="bg-white p-6 rounded-lg shadow-md mb-8">
             <h3 className="text-xl font-bold mb-2">Total Expenses</h3>
-            <p className="text-4xl font-bold text-blue-600">${totalExpenses.toFixed(2)}</p>
+            <p className="text-4xl font-bold text-blue-600">
+              {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalExpenses)}
+            </p>
+
           </div>
 
           <h3 className="text-xl font-bold mb-4">Top Categories</h3>
@@ -112,7 +123,10 @@ const Dashboard = () => {
               .map(([category, total]) => (
                 <div key={category} className="flex justify-between border-b py-2">
                   <span>{category}</span>
-                  <span className="font-bold">${total.toFixed(2)}</span>
+                  <span className="font-bold">
+  {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total)}
+</span>
+
                 </div>
               ))}
           </div>
@@ -127,7 +141,10 @@ const Dashboard = () => {
               .map((expense) => (
                 <div key={expense.id} className="border-b py-2">
                   <p className="font-bold">{expense.category}</p>
-                  <p>${parseFloat(expense.amount).toFixed(2)}</p>
+                  <p>
+  {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(parseFloat(expense.amount))}
+</p>
+
                   <p className="text-sm text-gray-500">{expense.date}</p>
                 </div>
               ))}

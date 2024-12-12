@@ -12,6 +12,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 import Login from "../Login";
 import Register from "../Register";
+import LandingPage from "../LandingPage";
+
 
 function LayoutPage() {
     const [user, setUser] = useState(null);
@@ -38,10 +40,10 @@ function LayoutPage() {
           {user && <Sidebar />}
           <main className="flex-1 p-8">
             <Routes>
-              <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-              <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+              <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+              <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
               <Route
-                path="/"
+                path="/dashboard"
                 element={user ? <Dashboard /> : <Navigate to="/login" />}
               />
               <Route
@@ -59,6 +61,11 @@ function LayoutPage() {
               <Route
                 path="/summary"
                 element={user ? <Summary /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/"
+                element={
+ <LandingPage /> }
               />
             </Routes>
           </main>

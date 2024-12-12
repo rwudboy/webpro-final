@@ -36,17 +36,23 @@ const Report = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Expense Report</h1>
+      <h1 className="text-3xl font-bold mb-4">Total Pengeluaran Sampai Saat Ini</h1>
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-2">Total Expenses</h2>
-        <p className="text-4xl font-bold text-blue-600">${totalExpenses.toFixed(2)}</p>
+        <h2 className="text-2xl font-bold mb-2">Total Pengeluaran</h2>
+        <p className="text-4xl font-bold text-blue-600">
+  {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalExpenses)}
+</p>
+
       </div>
       <div>
-        <h2 className="text-2xl font-bold mb-4">Expenses by Category</h2>
+        <h2 className="text-2xl font-bold mb-4">Pengeluaran by Kategori</h2>
         {Object.entries(categoryTotals).map(([category, total]) => (
           <div key={category} className="flex justify-between border-b py-2">
             <span>{category}</span>
-            <span className="font-bold">${total.toFixed(2)}</span>
+            <span className="font-bold">
+  {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total)}
+</span>
+
           </div>
         ))}
       </div>

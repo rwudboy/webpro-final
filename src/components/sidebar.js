@@ -8,7 +8,7 @@ const Sidebar = () => {
       <nav>
         <ul className="space-y-2">
           <li>
-            <Link to="/" className="flex items-center space-x-2 text-gray-700 hover:bg-gray-100 rounded-md p-2">
+            <Link to="/dashboard" className="flex items-center space-x-2 text-gray-700 hover:bg-gray-100 rounded-md p-2">
               <BarChart2 className="w-5 h-5" />
               <span>Dashboard</span>
             </Link>
@@ -16,7 +16,7 @@ const Sidebar = () => {
           <li>
             <Link to="/set-limit" className="flex items-center space-x-2 text-gray-700 hover:bg-gray-100 rounded-md p-2">
               <Settings className="w-5 h-5" />
-              <span>Set Limit</span>
+              <span>Target Pengeluaran</span>
             </Link>
           </li>
           <li>
