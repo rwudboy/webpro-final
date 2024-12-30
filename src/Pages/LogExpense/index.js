@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { database, auth } from '../../firebaseConfig';
-import { ref, push, onValue, remove, update } from 'firebase/database';
+import { ref, push, onValue, remove } from 'firebase/database';
 
 const LogExpense = () => {
   const [expenses, setExpenses] = useState([]);
@@ -45,13 +45,7 @@ const LogExpense = () => {
     }
   };
 
-  const handleUpdate = (id, updatedExpense) => {
-    const user = auth.currentUser;
-    if (user) {
-      const expenseRef = ref(database, `users/${user.uid}/expenses/${id}`);
-      update(expenseRef, updatedExpense);
-    }
-  };
+
 
   return (
     <div className="max-w-4xl mx-auto p-4">

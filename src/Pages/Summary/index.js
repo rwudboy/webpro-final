@@ -10,6 +10,7 @@ const Summary = () => {
   const [remainingBudget, setRemainingBudget] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Default to current month
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Default to current year
+  const [feedbackGenerated, setFeedbackGenerated] = useState(false); // Track whether feedback was generated
 
   // Format angka ke IDR (Rupiah)
   const formatIDR = (amount) => {
@@ -29,7 +30,7 @@ const Summary = () => {
     const user = auth.currentUser;
     if (user) {
       const expensesRef = ref(database, `users/${user.uid}/expenses`);
-      const limitRef = ref(database, `users/${user.uid}/limits/${selectedYear}/${selectedMonth}`);
+      const limitRef = ref(database, `users/${user.uid}/limits/${selectedYear}/${selectedMonth + 1}`);
 
       onValue(expensesRef, (snapshot) => {
         const data = snapshot.val();
@@ -54,6 +55,8 @@ const Summary = () => {
         const data = snapshot.val();
         if (data) {
           setLimit(data);
+        } else {
+          setLimit(0); // Set to 0 if no limit is found
         }
       });
     }
@@ -65,64 +68,85 @@ const Summary = () => {
     }
   }, [limit, totalExpenses]);
 
-  useEffect(() => {
-    if (remainingBudget !== null) {
-      generateFeedback(remainingBudget);
-    }
-  }, [remainingBudget]);
-
   const generateFeedback = async (remainingBudget) => {
-    const isPositive = remainingBudget >= 0;
-    const formattedAmount = formatIDR(remainingBudget);
-    const formattedLimit = limit !== null ? formatIDR(limit) : 'Belum diatur';
-
-    let promptText;
-    if (isPositive) {
-      promptText = `Anggap kamu adalah seorang teman. Sisa duit teman kamu adalah ${formattedAmount} dari uang perbulannya yaitu ${formattedLimit}. Berikan pujian untuk temanmu dikarenakan teman kamu sudah bisa mengorganisasikan keuangan dengan baik. Pastikan untuk menyebutkan jumlah sisa duit teman kamu.`;
-    } else {
-      promptText = `Anggap kamu adalah seorang teman, Teman kamu telah melakukan overbudget sejumlah ${formattedAmount}. Berikan roasting maksimal yang membuat orang ini sadar akan situasinya. Pastikan untuk menyebutkan jumlah sisa duit dalam hasil roasting. Dan jangan lupa kasih kata-kata untuk perbaikan ke depannya agar tidak overbudget.`;
-    }
+    const apiUrl = `http://127.0.0.1:8000/api/generate-feedback?remainingBudget=${remainingBudget}&limit=${limit}`;
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyDc1oTh3DctGrMJL9f-VG5HYgZF1A4M3Gw`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: promptText,
-                  },
-                ],
-              },
-            ],
-          }),
-        }
-      );
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error from Gemini API:', errorData);
+        console.error('Error from local API:', errorData);
         setFeedback('Error generating feedback. Please try again later.');
         return;
       }
 
       const data = await response.json();
-      if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-        setFeedback(data.candidates[0].content.parts[0].text);
+      if (data && data.feedback) {
+        setFeedback(data.feedback);
       } else {
         setFeedback('Unable to generate feedback at this time.');
       }
     } catch (error) {
-      console.error('Error fetching feedback from Gemini:', error);
+      console.error('Error fetching feedback from local API:', error);
       setFeedback('Error generating feedback.');
     }
   };
+
+  const handleGenerateFeedback = () => {
+    if (remainingBudget !== null) {
+      generateFeedback(remainingBudget);
+      setFeedbackGenerated(true);
+    }
+  };
+
+  // Function to handle Export to Text (TXT) from CSV response
+  const handleExportText = async () => {
+    const user = auth.currentUser; // Get the current user from Firebase authentication
+  
+    if (!user) {
+      console.error('User is not logged in');
+      return;
+    }
+  
+    const userId = user.uid; // Get the user ID
+    const apiUrl = `http://localhost:80/api/export-expenses?month=${selectedMonth}&year=${selectedYear}&userId=${userId}`; // Corrected the month by adding 1 to match the API format
+  
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+  
+      // Handle the response (formatted text data)
+      const textData = await response.text(); // Read the response as plain text
+      const filename = `expenses_report_${selectedMonth + 1}-${selectedYear}.txt`;
+  
+      // Create a Blob from the plain text data
+      const blob = new Blob([textData], { type: 'text/plain' });
+      const link = document.createElement('a'); // Create an anchor tag to trigger download
+      link.href = URL.createObjectURL(blob); // Create a URL for the Blob
+      link.download = filename; // Set the download file name
+      link.click(); // Trigger the download
+  
+    } catch (error) {
+      console.error('Error exporting expenses:', error);
+      alert('An error occurred while exporting expenses.');
+    }
+  };
+  
+
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -134,7 +158,7 @@ const Summary = () => {
           <label className="mr-2">Pilih Bulan: </label>
           <select
             value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
+            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
             className="border p-2 rounded"
           >
             {[...Array(12)].map((_, index) => (
@@ -148,7 +172,7 @@ const Summary = () => {
           <label className="mr-2">Pilih Tahun: </label>
           <select
             value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
             className="border p-2 rounded"
           >
             {[...Array(5)].map((_, index) => (
@@ -189,8 +213,28 @@ const Summary = () => {
         ))}
       </div>
 
-      {/* Display the feedback below the expenses */}
-      {remainingBudget !== null && (
+      {/* Button to generate feedback */}
+      <div className="mt-8">
+        <button
+          onClick={handleGenerateFeedback}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+        >
+          {feedbackGenerated ? 'Feedback Generated' : 'Generate Feedback'}
+        </button>
+      </div>
+
+      {/* Export to Excel Button */}
+      <div className="mt-4">
+        <button
+          onClick={handleExportText}
+          className="bg-green-500 text-white px-4 py-2 rounded-lg"
+        >
+          Export Report
+        </button>
+      </div>
+
+      {/* Display the feedback below the button */}
+      {feedback && (
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-4">Budget Feedback</h2>
           <div className="bg-white p-6 rounded-lg shadow-md">
